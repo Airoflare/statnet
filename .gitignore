@@ -6,6 +6,10 @@
 # next.js
 /.next/
 /out/
+/backend/static
+
+# go server build
+/backend/server
 
 # production
 /build

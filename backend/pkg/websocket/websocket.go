@@ -2,6 +2,7 @@ package websocket
 
 import (
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -21,9 +22,37 @@ var (
 				allowedOriginsStr = "http://localhost" // Default value
 			}
 			allowedOrigins := strings.Split(allowedOriginsStr, ",")
+
+			// Add defaults: localhost + loopback IPs
+			allowedOrigins = append(allowedOrigins,
+				"http://localhost",
+				"http://127.0.0.1",
+			)
+
+			// Allow Network Interface Ipv4 IPs: ex http://10.0.0.23:80
+			ifaces, _ := net.Interfaces()
+			for _, iface := range ifaces {
+				addrs, _ := iface.Addrs()
+				for _, addr := range addrs {
+					var ip net.IP
+					switch v := addr.(type) {
+					case *net.IPNet:
+						ip = v.IP
+					case *net.IPAddr:
+						ip = v.IP
+					}
+					if ip == nil || ip.IsLoopback() {
+						continue
+					}
+					if ip.To4() != nil {
+						allowedOrigins = append(allowedOrigins, "http://"+ip.String())
+					}
+				}
+			}
+
 			origin := r.Header.Get("Origin")
 			for _, allowedOrigin := range allowedOrigins {
-				if origin == allowedOrigin {
+				if strings.HasPrefix(origin, allowedOrigin) {
 					return true
 				}
 			}

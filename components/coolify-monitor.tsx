@@ -87,103 +87,118 @@ export default function CoolifyMonitor() {
 
   return (
     <motion.div
-      className="flex flex-col items-center justify-start min-h-[calc(100vh-3.5rem)] p-4 space-y-4 pt-20" // Added pt-10
+      className="flex flex-col items-center justify-start min-h-[calc(100vh-3.5rem)] p-4 space-y-4 pt-20"
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
-      <Card className="w-full max-w-2xl bg-background/95 backdrop-blur-sm border border-border shadow-lg">
-        <motion.div
-          className="p-3 cursor-pointer"
-          onClick={() => setIsExpanded(!isExpanded)}
-          whileHover={{ backgroundColor: "hsl(var(--muted) / 0.5)" }}
-          transition={{ duration: 0.2 }}
-        >
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Sparkles className={`w-4 h-4 text-muted-foreground`} />
-              <span className="text-sm font-medium">Coolify Overview</span>
-              
-            </div>
+      {coolifyContainers.length > 0 ? (
+        <>
+          <Card className="w-full max-w-2xl bg-background/95 backdrop-blur-sm border border-border shadow-lg">
             <motion.div
-              animate={{ rotate: isExpanded ? 180 : 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="text-muted-foreground"
+              className="p-3 cursor-pointer"
+              onClick={() => setIsExpanded(!isExpanded)}
+              whileHover={{ backgroundColor: "hsl(var(--muted) / 0.5)" }}
+              transition={{ duration: 0.2 }}
             >
-              <ChevronDown className="h-4 w-4"/>
-            </motion.div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-            <ResourceCard icon={Cog} label="Compute" value={currentCpu} data={resourceData.cpu} color="#1e90ff" maxValue={100} />
-            <ResourceCard
-              icon={ArrowDownUp}
-              label="Network"
-              value={currentNetwork}
-              data={resourceData.network}
-              color="#8b5cf6"
-              unit=""
-              valueDisplay={formatNetworkSpeed(currentNetwork)}
-              maxValue={Math.max(...resourceData.network.map(d => d.value), 1) * 1.5}
-            />
-            <ResourceCard
-              icon={Layers}
-              label="Memory"
-              value={currentMemory}
-              data={resourceData.memory.map(d => ({ value: d.value, timestamp: d.timestamp }))}
-              color="#00ced1"
-              unit=""
-              valueDisplay={formatMemorySize(currentMemory)}
-              maxValue={totalMemory}
-            />
-            <ResourceCard
-              icon={Database}
-              label="Disk"
-              value={currentDisk}
-              data={resourceData.disk}
-              color="#f59e0b"
-              unit=""
-              valueDisplay={formatDiskSize(currentDisk)}
-              maxValue={diskGraphMaxValue}
-            />
-          </div>
-        </motion.div>
-
-        <AnimatePresence>
-          {isExpanded && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="overflow-hidden"
-            >
-              <div className="px-3 pb-3 border-t border-border">
-                <div className="space-y-1 mt-4">
-                  <span className="text-xs font-medium text-muted-foreground">Coolify Containers</span>
-                  <div className="mt-1 space-y-1">
-                    {coolifyContainers.map((container, index) => (
-                      <ContainerItem container={container} index={index} key={container.id} />
-                    ))}
-                  </div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className={`w-4 h-4 text-muted-foreground`} />
+                  <span className="text-sm font-medium">Coolify Overview</span>
+                  
                 </div>
+                <motion.div
+                  animate={{ rotate: isExpanded ? 180 : 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  className="text-muted-foreground"
+                >
+                  <ChevronDown className="h-4 w-4"/>
+                </motion.div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                <ResourceCard icon={Cog} label="Compute" value={currentCpu} data={resourceData.cpu} color="#1e90ff" maxValue={100} />
+                <ResourceCard
+                  icon={ArrowDownUp}
+                  label="Network"
+                  value={currentNetwork}
+                  data={resourceData.network}
+                  color="#8b5cf6"
+                  unit=""
+                  valueDisplay={formatNetworkSpeed(currentNetwork)}
+                  maxValue={Math.max(...resourceData.network.map(d => d.value), 1) * 1.5}
+                />
+                <ResourceCard
+                  icon={Layers}
+                  label="Memory"
+                  value={currentMemory}
+                  data={resourceData.memory.map(d => ({ value: d.value, timestamp: d.timestamp }))}
+                  color="#00ced1"
+                  unit=""
+                  valueDisplay={formatMemorySize(currentMemory)}
+                  maxValue={totalMemory}
+                />
+                <ResourceCard
+                  icon={Database}
+                  label="Disk"
+                  value={currentDisk}
+                  data={resourceData.disk}
+                  color="#f59e0b"
+                  unit=""
+                  valueDisplay={formatDiskSize(currentDisk)}
+                  maxValue={diskGraphMaxValue}
+                />
               </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </Card>
 
-      {/* Display individual coolify container cards */}
-      {combinedData && coolifyContainers.length > 0 && (
+            <AnimatePresence>
+              {isExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  className="overflow-hidden"
+                >
+                  <div className="px-3 pb-3 border-t border-border">
+                    <div className="space-y-1 mt-4">
+                      <span className="text-xs font-medium text-muted-foreground">Coolify Containers</span>
+                      <div className="mt-1 space-y-1">
+                        {coolifyContainers.map((container, index) => (
+                          <ContainerItem container={container} index={index} key={container.id} />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </Card>
+
+          {/* Display individual coolify container cards */}
+          <motion.div
+            className="flex flex-col items-center justify-start w-full space-y-4 pt-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            {coolifyContainers.map((container) => (
+              <ContainerCard key={container.id} container={container} />
+            ))}
+          </motion.div>
+        </>
+      ) : (
         <motion.div
-          className="flex flex-col items-center justify-start w-full space-y-4 pt-4"
+          className="flex flex-col items-center justify-center w-full p-8 text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          {coolifyContainers.map((container) => (
-              <ContainerCard key={container.id} container={container} />
-            ))}
+          <Sparkles className="w-12 h-12 text-muted-foreground mb-4" />
+          <h3 className="text-lg font-medium mb-2">No Coolify Containers Found</h3>
+          <p className="text-sm text-muted-foreground">
+            There are currently no Coolify containers to display.
+          </p>
         </motion.div>
       )}
     </motion.div>
