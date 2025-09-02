@@ -27,5 +27,5 @@ func main() {
 	})
 
 	log.Println("Server starting on port 80...")
-	http.ListenAndServe(":80", nil)
+	http.ListenAndServe("0.0.0.0:80", nil) //bind to all interfaces
 }
