@@ -12,4 +12,4 @@ LICENSE             # Ignore license file
 README.md           # Ignore README file
 
 # Ignore image files (if they are not needed for the Docker build)
-image               # Ignore image directory (only used for github readme)
+images               # Ignore image directory (only used for github readme)
