@@ -1,7 +1,9 @@
 package monitor
 
 import (
+	"encoding/json"
 	"log"
+	"os"
 	"sync"
 	"time"
 
@@ -16,13 +18,25 @@ const (
 
 // Monitor holds the latest system and container data and protects it with a mutex
 type Monitor struct {
-	mu           sync.RWMutex
-	combinedData metrics.CombinedData
+	mu             sync.RWMutex
+	combinedData   metrics.CombinedData
+	containerNames []metrics.ContainerNameMapping
 }
 
 // NewMonitor creates and initializes a new Monitor instance
 func NewMonitor() *Monitor {
-	return &Monitor{}
+	monitor := &Monitor{}
+
+	// Read container names from mounted file
+	if data, err := os.ReadFile("/app/container-names.json"); err == nil {
+		if err := json.Unmarshal(data, &monitor.containerNames); err != nil {
+			log.Printf("Error parsing container-names.json: %v", err)
+		}
+	} else {
+		log.Printf("Error reading container-names.json: %v", err)
+	}
+
+	return monitor
 }
 
 // StartCollection begins the periodic data collection
@@ -54,8 +68,9 @@ func (m *Monitor) StartCollection() {
 		// Update the combined data in a thread-safe manner
 		m.mu.Lock()
 		m.combinedData = metrics.CombinedData{
-			SystemInfo: systemInfo,
-			Containers: containers,
+			SystemInfo:     systemInfo,
+			Containers:     containers,
+			ContainerNames: m.containerNames,
 		}
 		m.mu.Unlock()
 	}

@@ -26,6 +26,8 @@ export default function CoolifyMonitor() {
 
   const [isExpanded, setIsExpanded] = useState(false)
 
+
+
   useEffect(() => {
     if (!combinedData || !combinedData.containers || !combinedData.systemInfo || !combinedData.systemInfo.resourceData) {
       return;
@@ -38,18 +40,36 @@ export default function CoolifyMonitor() {
       (container.name || '').toLowerCase().includes("coolify")
     );
 
-    // Sort filtered containers by status, then by name, then by ID
+    const sortOption = localStorage.getItem("containerSort") || "name-asc"
+
+    // Sort filtered containers
     const sortedCoolifyContainers = [...filteredContainers].sort((a, b) => {
       const statusOrder = { running: 0, restarting: 1, stopped: 2, exited: 3 };
-      const statusComparison = statusOrder[a.status] - statusOrder[b.status];
-      if (statusComparison !== 0) {
-        return statusComparison;
+      const aStatus = statusOrder[a.status] ?? 999
+      const bStatus = statusOrder[b.status] ?? 999
+      if (aStatus !== bStatus) return aStatus - bStatus
+
+      switch (sortOption) {
+        case "name-asc":
+          return (a.name || '').localeCompare(b.name || '')
+        case "name-desc":
+          return (b.name || '').localeCompare(a.name || '')
+        case "resource":
+          const aRam = a.ramUsage?.length ? a.ramUsage[a.ramUsage.length - 1]?.value || 0 : 0
+          const bRam = b.ramUsage?.length ? b.ramUsage[b.ramUsage.length - 1]?.value || 0 : 0
+          if (aRam !== bRam) return bRam - aRam
+          return (a.name || '').localeCompare(b.name || '')
+        case "container-names-order":
+          const containerNamesOrder = combinedData?.containerNames?.map(item => item.key) || []
+          const aIndex = containerNamesOrder.indexOf(a.rawName || '')
+          const bIndex = containerNamesOrder.indexOf(b.rawName || '')
+          if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex
+          if (aIndex !== -1) return -1
+          if (bIndex !== -1) return 1
+          return (a.name || '').localeCompare(b.name || '')
+        default:
+          return (a.name || '').localeCompare(b.name || '')
       }
-      const nameComparison = a.name.localeCompare(b.name);
-      if (nameComparison !== 0) {
-        return nameComparison;
-      }
-      return a.id.localeCompare(b.id);
     });
     
 

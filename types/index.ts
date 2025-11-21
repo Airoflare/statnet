@@ -12,6 +12,7 @@ export interface MemoryDataPoint extends DataPoint {
 export interface Container {
   id: string;
   name: string;
+  rawName: string;
   cpuUsage: DataPoint[];
   ramUsage: MemoryDataPoint[];
   networkRxBytes: DataPoint[];
@@ -94,7 +95,13 @@ export interface SystemInfoResponse {
   cpuPerCore?: number[];
 }
 
+export interface ContainerNameMapping {
+  key: string;
+  value: string;
+}
+
 export interface CombinedData {
   systemInfo: SystemInfoResponse;
   containers: Container[];
+  containerNames: ContainerNameMapping[];
 }

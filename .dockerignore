@@ -13,3 +13,4 @@ README.md           # Ignore README file
 
 # Ignore image files (if they are not needed for the Docker build)
 images               # Ignore image directory (only used for github readme)
+staging.sh           # Ignore staging script (only used for local testing)

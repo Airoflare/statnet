@@ -5,6 +5,7 @@ import MainNav from "@/components/main-nav"
 import SystemOverview from "@/components/system-overview"
 import ContainersMonitor from "@/components/containers-monitor"
 import CoolifyMonitor from "@/components/coolify-monitor"
+import Settings from "@/components/settings"
 import CpuInfoCard from "@/components/cpu-info-card"
 import MemoryInfoCard from "@/components/memory-info-card"
 import NetworkInfoCard from "@/components/network-info-card"
@@ -35,7 +36,9 @@ export default function Page() {
         return <ContainersMonitor />
       case "coolify":
         return <CoolifyMonitor />
-      
+      case "settings":
+        return <Settings />
+
       default:
         return <SystemOverview />
     }

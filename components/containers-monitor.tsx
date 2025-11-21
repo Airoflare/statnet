@@ -23,6 +23,8 @@ export default function ContainersMonitor() {
 
   const [isExpanded, setIsExpanded] = useState(false)
 
+
+
   useEffect(() => {
     const maxPoints = 7;
     const now = Date.now();
@@ -63,41 +65,56 @@ export default function ContainersMonitor() {
       return;
     }
 
-    // Sort containers: running first (by RAM usage), then others by name
-    const sortedContainers = [...combinedData.containers].sort((a, b) => {
-      // Prioritize running containers
-      const aIsRunning = a.status === "running";
-      const bIsRunning = b.status === "running";
+    let filteredContainers = combinedData.containers
+    const showCoolify = localStorage.getItem("showCoolifyOnContainers") !== "false"
+    if (!showCoolify) {
+      filteredContainers = filteredContainers.filter(c => !(c.name || '').toLowerCase().includes("coolify"))
+    }
 
-      if (aIsRunning && !bIsRunning) return -1; // a comes before b
-      if (!aIsRunning && bIsRunning) return 1; // b comes before a
+    const sortOption = localStorage.getItem("containerSort") || "name-asc"
 
-      // If both are running, sort by RAM usage (descending)
-      if (aIsRunning && bIsRunning) {
-        const aRam = a.ramUsage?.length > 0 ? a.ramUsage[a.ramUsage.length - 1]?.value || 0 : 0;
-        const bRam = b.ramUsage?.length > 0 ? b.ramUsage[b.ramUsage.length - 1]?.value || 0 : 0;
-        if (aRam !== bRam) {
-          return bRam - aRam;
-        }
+    const sortedContainers = [...filteredContainers].sort((a, b) => {
+      const statusOrder = { "running": 0, "restarting": 1, "stopped": 2, "exited": 3 };
+      const aStatus = statusOrder[a.status] ?? 999
+      const bStatus = statusOrder[b.status] ?? 999
+      if (aStatus !== bStatus) return aStatus - bStatus
+
+      switch (sortOption) {
+        case "name-asc":
+          return (a.name || '').localeCompare(b.name || '')
+        case "name-desc":
+          return (b.name || '').localeCompare(a.name || '')
+        case "resource":
+          const aRam = a.ramUsage?.length ? a.ramUsage[a.ramUsage.length - 1]?.value || 0 : 0
+          const bRam = b.ramUsage?.length ? b.ramUsage[b.ramUsage.length - 1]?.value || 0 : 0
+          if (aRam !== bRam) return bRam - aRam
+          return (a.name || '').localeCompare(b.name || '')
+        case "container-names-order":
+          const containerNamesOrder = combinedData?.containerNames?.map(item => item.key) || []
+          const aIndex = containerNamesOrder.indexOf(a.rawName || '')
+          const bIndex = containerNamesOrder.indexOf(b.rawName || '')
+          if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex
+          if (aIndex !== -1) return -1
+          if (bIndex !== -1) return 1
+          return (a.name || '').localeCompare(b.name || '')
+        default:
+          return (a.name || '').localeCompare(b.name || '')
       }
-
-      // Sort by name as fallback
-      return (a.name || '').localeCompare(b.name || '');
     });
 
     setContainers(sortedContainers);
 
-    // Calculate totals
-    const currentTotalCpu = combinedData.containers.reduce((sum, c) => 
+    // Calculate totals from filtered containers
+    const currentTotalCpu = filteredContainers.reduce((sum, c) =>
       sum + ((c.cpuUsage && c.cpuUsage.length > 0) ? (c.cpuUsage[c.cpuUsage.length - 1]?.value || 0) : 0), 0);
-    
-    const currentTotalRam = combinedData.containers.reduce((sum, c) => 
+
+    const currentTotalRam = filteredContainers.reduce((sum, c) =>
       sum + ((c.ramUsage && c.ramUsage.length > 0) ? (c.ramUsage[c.ramUsage.length - 1]?.value || 0) : 0), 0);
-    
-    const currentTotalNetworkRx = combinedData.containers.reduce((sum, c) => 
+
+    const currentTotalNetworkRx = filteredContainers.reduce((sum, c) =>
       sum + ((c.networkRxBytes && c.networkRxBytes.length > 0) ? (c.networkRxBytes[c.networkRxBytes.length - 1]?.value || 0) : 0), 0);
-    
-    const currentTotalNetworkTx = combinedData.containers.reduce((sum, c) => 
+
+    const currentTotalNetworkTx = filteredContainers.reduce((sum, c) =>
       sum + ((c.networkTxBytes && c.networkTxBytes.length > 0) ? (c.networkTxBytes[c.networkTxBytes.length - 1]?.value || 0) : 0), 0);
 
     setTotalCpuData(prev => [...prev, { value: currentTotalCpu, timestamp: Date.now() }].slice(-maxPoints));
@@ -222,16 +239,8 @@ export default function ContainersMonitor() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          {(combinedData?.containers || [])
-            .sort((a, b) => {
-              const statusOrder = { "running": 0, "restarting": 1, "stopped": 2, "exited": 3 };
-              const statusComparison = (statusOrder[a?.status] ?? 999) - (statusOrder[b?.status] ?? 999);
-              if (statusComparison !== 0) {
-                return statusComparison;
-              }
-              return ((a?.name || '') || '').localeCompare((b?.name || '') || '');
-            })
-            .map((container) => (
+            {containers
+             .map((container) => (
               <ContainerCard 
                 key={container?.id || Math.random().toString()} 
                 container={container} 

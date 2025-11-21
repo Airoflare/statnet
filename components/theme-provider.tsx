@@ -7,5 +7,5 @@ import {
 } from 'next-themes'
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
-  return <NextThemesProvider storageKey={null} {...props}>{children}</NextThemesProvider>
+  return <NextThemesProvider storageKey="theme" {...props}>{children}</NextThemesProvider>
 }

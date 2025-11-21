@@ -47,6 +47,7 @@ type SystemInfoResponse struct {
 type DockerContainer struct {
 	ID             string            `json:"id,omitempty"` // Add ID for mapping historical data
 	Name           string            `json:"name"`
+	RawName        string            `json:"rawName"`
 	Status         string            `json:"status"`
 	CPUUsage       []DataPoint       `json:"cpuUsage"`
 	RAMUsage       []MemoryDataPoint `json:"ramUsage"` // Use MemoryDataPoint for RAM to include total memory if needed
@@ -127,6 +128,7 @@ type DetailedContainerJSON struct {
 
 // CombinedData combines system and container data for WebSocket communication
 type CombinedData struct {
-	SystemInfo SystemInfoResponse `json:"systemInfo"`
-	Containers []DockerContainer  `json:"containers"`
+	SystemInfo     SystemInfoResponse     `json:"systemInfo"`
+	Containers     []DockerContainer      `json:"containers"`
+	ContainerNames []ContainerNameMapping `json:"containerNames"`
 }

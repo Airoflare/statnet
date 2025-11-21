@@ -55,7 +55,6 @@ func init() {
 			IdleConnTimeout:       90 * time.Second,
 			MaxIdleConns:          100,
 			MaxIdleConnsPerHost:   10,
-			
 		},
 		Timeout: 10 * time.Second, // Overall request timeout
 	}
@@ -120,9 +119,11 @@ func GetDockerContainers() ([]metrics.DockerContainer, error) {
 			if err != nil {
 				log.Printf("Error getting detailed info for container %s: %v", dc.ID, err)
 				mu.Lock()
+				trimmedName := strings.TrimPrefix(dc.Names[0], "/")
 				result = append(result, metrics.DockerContainer{
 					ID:             dc.ID,
-					Name:           getDisplayName(strings.TrimPrefix(dc.Names[0], "/")),
+					Name:           getDisplayName(trimmedName),
+					RawName:        trimmedName,
 					Status:         dc.State,
 					CPUUsage:       []metrics.DataPoint{{Value: 0, Timestamp: timestamp}},
 					RAMUsage:       []metrics.MemoryDataPoint{{Value: 0, Timestamp: timestamp, TotalMemory: 0}},
@@ -144,9 +145,11 @@ func GetDockerContainers() ([]metrics.DockerContainer, error) {
 			if err != nil {
 				log.Printf("Error getting stats for container %s: %v", dc.ID, err)
 				mu.Lock()
+				trimmedName := strings.TrimPrefix(dc.Names[0], "/")
 				result = append(result, metrics.DockerContainer{
 					ID:             dc.ID,
-					Name:           getDisplayName(strings.TrimPrefix(dc.Names[0], "/")),
+					Name:           getDisplayName(trimmedName),
+					RawName:        trimmedName,
 					Status:         detailedContainer.State.Status,
 					CPUUsage:       []metrics.DataPoint{{Value: 0, Timestamp: timestamp}},
 					RAMUsage:       []metrics.MemoryDataPoint{{Value: 0, Timestamp: timestamp, TotalMemory: 0}},
@@ -164,7 +167,7 @@ func GetDockerContainers() ([]metrics.DockerContainer, error) {
 
 			cpuUsage := calculateCpuUsage(stats)
 			ramUsage := calculateRamUsage(stats)
-			
+
 			// Calculate network rates
 			currentTotalRxBytes, currentTotalTxBytes := calculateTotalNetworkUsage(stats)
 			networkRxRate := calculateNetworkRate(dc.ID, currentTotalRxBytes, true)
@@ -205,21 +208,23 @@ func GetDockerContainers() ([]metrics.DockerContainer, error) {
 				containerNetworkTxHistory[dc.ID] = containerNetworkTxHistory[dc.ID][1:]
 			}
 
+			trimmedName := strings.TrimPrefix(dc.Names[0], "/")
 			result = append(result, metrics.DockerContainer{
-					ID:             dc.ID,
-					Name:           getDisplayName(strings.TrimPrefix(dc.Names[0], "/")),
-					Status:         detailedContainer.State.Status,
-					CPUUsage:       containerCPUHistory[dc.ID],
-					RAMUsage:       ramHistory,
-					NetworkRxBytes: containerNetworkRxHistory[dc.ID],
-					NetworkTxBytes: containerNetworkTxHistory[dc.ID],
-					Uptime:         uptime,
-					FinishedAt:     finishedAt,
-					TotalRxBytes:   currentTotalRxBytes, // Still send total for detailed view
-					TotalTxBytes:   currentTotalTxBytes, // Still send total for detailed view
-					BlockRead:      blockRead,
-					BlockWrite:     blockWrite,
-				})
+				ID:             dc.ID,
+				Name:           getDisplayName(trimmedName),
+				RawName:        trimmedName,
+				Status:         detailedContainer.State.Status,
+				CPUUsage:       containerCPUHistory[dc.ID],
+				RAMUsage:       ramHistory,
+				NetworkRxBytes: containerNetworkRxHistory[dc.ID],
+				NetworkTxBytes: containerNetworkTxHistory[dc.ID],
+				Uptime:         uptime,
+				FinishedAt:     finishedAt,
+				TotalRxBytes:   currentTotalRxBytes, // Still send total for detailed view
+				TotalTxBytes:   currentTotalTxBytes, // Still send total for detailed view
+				BlockRead:      blockRead,
+				BlockWrite:     blockWrite,
+			})
 			mu.Unlock()
 		}(dc)
 	}
