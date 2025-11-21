@@ -6,7 +6,36 @@ services:
       - SERVICE_URL_STATNET  # Define the Coolify magic environment variable 'SERVICE_URL_STATNET'
       - 'ALLOWED_CORS_ORIGINS=${SERVICE_URL_STATNET}' # Set 'ALLOWED_CORS_ORIGINS' to the value of 'SERVICE_URL_STATNET'
     volumes:
-      - '/data/statnet/container-names.json:/app/container-names.json:ro'  # Map container names JSON file to the container (read-only mode)
+      - type: bind
+        source: /data/statnet/container-names.json
+        target: /app/container-names.json
+        content: | 
+          [
+            {
+              "key": "coolify",
+              "value": "Coolify"
+            },
+            {
+              "key": "coolify-db",
+              "value": "Coolify Database"
+            },
+            {
+              "key": "coolify-realtime",
+              "value": "Coolify Realtime"
+            },
+            {
+              "key": "coolify-redis",
+              "value": "Coolify Redis"
+            },
+            {
+              "key": "coolify-proxy",
+              "value": "Coolify Proxy"
+            },
+            {
+              "key": "shadoweb-gw0c48ws4g8884",
+              "value": "ShadowArcanist Website"
+            }
+          ]
       - '/var/run/docker.sock:/var/run/docker.sock:ro'  # Mount the Docker socket to allow interaction with the Docker engine (read-only mode)
       - '/var/lib/docker/volumes/coolify-db:/var/lib/docker/volumes/coolify-db:ro'  # Mount the coolify-db volume to find disk space used by coolify (read-only mode)
       - '/var/lib/docker/volumes/coolify-redis:/var/lib/docker/volumes/coolify-redis:ro'  # Mount the coolify-redis volume to find disk space used by coolify (read-only mode)
