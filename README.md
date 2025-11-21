@@ -125,6 +125,8 @@ You can deploy StatNet using the provided Docker Compose file or through Coolify
 3. Click "Deploy!"
 4. (Optional): Go to "Persistent Storages" tab on Coolify and edit the `container-names.json` content there (it's used to display container names)
 
+[▶️ Watch video on how to Deploy on Coolify](.github/assets/videos/deploy-on-coolify.mov)
+
 </details>
 
 <br />
