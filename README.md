@@ -108,18 +108,24 @@ I use the web interface to quickly check the performance of my server and contai
 
 You can deploy StatNet using the provided Docker Compose file or through Coolify.
 
-### **Deploy Using Docker Compose**
+<details>
+<summary><strong>Deploy Using Docker Compose</strong></summary>
 
 1. Create a `compose.yaml` file on your server and paste the contents of the `docker-compose.yaml` from this repo.
 2. Create a `container-names.json` file based on the `container-names-sample.json` in this repo, and update the file path in the Compose file.
 3. Run `docker compose up` to launch the containers.
 
-### **Deploy Using Coolify**
+</details>
 
-1. Create a `container-names.json` file based on the `container-names-sample.json` in this repo, and update the file path in the Compose file.
-2. Add a new resource in Coolify → "Docker Compose Empty."
-3. Paste the contents of the `coolify.yaml` from the repo into the input field.
-4. Click "Deploy!"
+<details>
+<summary><strong>Deploy Using Coolify</strong></summary>
+
+1. Add a new resource in Coolify → "Docker Compose Empty."
+2. Paste the contents of the `coolify.yaml` from the repo into the input field.
+3. Click "Deploy!"
+4. (Optional): Go to "Persistent Storages" tab on Coolify and edit the `container-names.json` content there (it's used to display container names)
+
+</details>
 
 <br />
 
