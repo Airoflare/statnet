@@ -87,7 +87,7 @@ func calculateNetworkRate(containerID string, currentBytes uint64, isRx bool) fl
 }
 
 func GetDockerContainers() ([]metrics.DockerContainer, error) {
-	resp, err := dockerClient.Get("http://unix/v1.41/containers/json?all=true")
+	resp, err := dockerClient.Get("http://unix/containers/json?all=true")
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to Docker daemon: %w", err)
 	}
@@ -302,7 +302,7 @@ func getDisplayName(containerName string) string {
 }
 
 func getContainerStats(ctx context.Context, containerID string) (metrics.DockerStats, error) {
-	req, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("http://unix/v1.41/containers/%s/stats?stream=false", containerID), nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("http://unix/containers/%s/stats?stream=false", containerID), nil)
 	if err != nil {
 		return metrics.DockerStats{}, fmt.Errorf("failed to create request: %w", err)
 	}
@@ -405,7 +405,7 @@ func calculateContainerFinishedAt(containerJSON metrics.DetailedContainerJSON) i
 }
 
 func getDetailedContainerInfo(ctx context.Context, containerID string) (metrics.DetailedContainerJSON, error) {
-	req, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("http://unix/v1.41/containers/%s/json", containerID), nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("http://unix/containers/%s/json", containerID), nil)
 	if err != nil {
 		return metrics.DetailedContainerJSON{}, fmt.Errorf("failed to create request for detailed container info: %w", err)
 	}
